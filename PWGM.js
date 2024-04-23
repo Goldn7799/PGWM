@@ -1,5 +1,5 @@
 const config = {
-  destination: 'google.com'
+  destination: 'http://google.com'
 }
 
 const data = {
@@ -41,10 +41,10 @@ function updateDisplay() {
 
 async function getPing() {
   const start = Date.now();
-  const res = await fetch(`http://${config.destination}?timestamp=${start}`);
+  const res = await fetch(`${config.destination}`);
   const end = Date.now();
   return {
-    ping: end-start,
+    ping: end-start-100,
     status: res.status
   }
 }
@@ -110,4 +110,3 @@ setInterval(() => {
 setInterval(() => {
   data.pingOnlyHistory.thm = data.currentPing;
 }, 1800000)
-
