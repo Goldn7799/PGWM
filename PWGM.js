@@ -1,5 +1,6 @@
 const config = {
-  destination: 'http://google.com'
+  destination: 'http://google.com',
+  method: "GET"
 }
 
 const data = {
@@ -7,7 +8,7 @@ const data = {
   currentPing: 0,
   avgPing: '-',
   lowerPing: 0,
-  higerPing: 0,
+  higherPing: 0,
   packetLoss: 0,
   packetAcc: 0,
   start: false,
@@ -25,7 +26,7 @@ function updateDisplay() {
   console.log(`Ping : [ ${data.currentPing}ms ]`)
   console.log(`AVG : [ ${data.avgPing}ms ]`)
   console.log(`Lower : [ ${data.lowerPing}ms ]`)
-  console.log(`Higer : [ ${data.higerPing}ms ]`)
+  console.log(`Higher : [ ${data.higherPing}ms ]`)
   console.log(`Packet Acc : [ ${data.packetAcc} ]`)
   console.log(`Packet Loss : [ ${data.packetLoss} ]`)
   console.log('')
@@ -41,7 +42,7 @@ function updateDisplay() {
 
 async function getPing() {
   const start = Date.now();
-  const res = await fetch(`${config.destination}`);
+  const res = await fetch(`${config.destination}`, { method: config.method });
   const end = Date.now();
   return {
     ping: end-start-100,
@@ -62,8 +63,8 @@ function updateData() {
     if (res.status === 200) {
       data.currentPing = res.ping;
       data.packetAcc++;
-      if (data.higerPing <= res.ping) {
-        data.higerPing = res.ping;
+      if (data.higherPing <= res.ping) {
+        data.higherPing = res.ping;
       };
       if (data.lowerPing >= res.ping) {
         data.lowerPing = res.ping
@@ -88,10 +89,14 @@ function updateData() {
       } else {
         setTimeout(() => {
           updateData()
-        }, 1000);
+        }, 800);
       }
     } else {
-      packetLoss++;
+      data.packetLoss++;
+      updateDisplay()
+      setTimeout(() => {
+        updateData()
+      }, 900);
     }
   })
 }
