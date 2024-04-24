@@ -12,6 +12,7 @@ const data = {
   packetLoss: 0,
   packetAcc: 0,
   start: false,
+  usedDataByte: 0,
   pingOnlyHistory: {
     fim: '-',
     tem: '-',
@@ -28,7 +29,7 @@ function updateDisplay() {
   console.log(`Lower : [ ${data.lowerPing}ms ]`)
   console.log(`Higher : [ ${data.higherPing}ms ]`)
   const totalPacket = data.packetAcc + data.packetLoss;
-  console.log(`Packet Sent : [ ${totalPacket} ]`)
+  console.log(`Packet Sent : [ ${totalPacket} ] ( ${(data.usedDataByte / (1 << 20)).toFixed(2)}MB )`)
   console.log(`Packet Recived : [ ${Math.round(data.packetAcc / totalPacket * 100)}% ]`)
   console.log(`Packet Loss : [ ${Math.round(data.packetLoss / totalPacket * 100)}% ]`)
   console.log('')
@@ -60,6 +61,7 @@ async function getPing() {
         // const rawPing = end - start;
         // const resSize = Number(res.headers.get('Content-Length'))
         // const ping = Math.round((resSize / rawPing) * 32)
+        data.usedDataByte += Number(res.headers.get('Content-Length'))
         const ping = end - start - 105;
         resolve({
           ping,
