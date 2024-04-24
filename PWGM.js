@@ -26,7 +26,7 @@ function updateDisplay() {
   console.clear()
   console.log('----------[ PING MONITOR ]----------')
   console.log(`Ping : [ ${data.currentPing}ms ]`)
-  console.log(`AVG : [ ${data.avgPing}ms ]${(data.pingHistory.length >= 50) ? '' : ` (${Math.round(data.pingHistory.length / 50 * 100)}%)`}`)
+  console.log(`AVG : [ ${data.avgPing}ms ]${(data.pingHistory.length >= ((config.fastMode) ? 100 : 50)) ? '' : ` (${Math.round(data.pingHistory.length / ((config.fastMode) ? 100 : 50) * 100)}%)`}`)
   console.log(`Lower : [ ${data.lowerPing}ms ]`)
   console.log(`Higher : [ ${data.higherPing}ms ]`)
   const totalPacket = data.packetAcc + data.packetLoss;
@@ -106,7 +106,7 @@ function updateData() {
       data.start = true;
       data.lowerPing = res.ping
     };
-    if (data.pingHistory.length > 50) {
+    if (data.pingHistory.length > ((config.fastMode) ? 100 : 50)) {
       data.pingHistory.splice(0, 1);
     };
     if (res.success) {
@@ -118,7 +118,7 @@ function updateData() {
       if (data.lowerPing >= res.ping) {
         data.lowerPing = res.ping
       };
-      if (data.pingHistory.length >= 50) {
+      if (data.pingHistory.length >= ((config.fastMode) ? 100 : 50)) {
         const pingOnlyHistory = data.pingHistory.map((datas) => {
           if (datas.success) {
             return datas.ping
