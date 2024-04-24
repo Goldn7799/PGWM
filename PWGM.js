@@ -118,9 +118,10 @@ function updateData() {
         data.lowerPing = res.ping
       };
       if (data.pingHistory.length >= 50) {
-        const pingOnlyHistory = data.pingHistory.map((datas) => {
+        const pingOnlyHistory = [];
+        data.pingHistory.forEach((datas) => {
           if (datas.success) {
-            return datas.ping
+            pingOnlyHistory.push(datas.ping)
           }
         })
         let totalAvgPing = 0;
