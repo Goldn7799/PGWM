@@ -118,17 +118,21 @@ function updateData() {
         data.lowerPing = res.ping
       };
       if (data.pingHistory.length >= 50) {
-        const pingOnlyHistory = [];
-        data.pingHistory.forEach((datas) => {
+        const pingOnlyHistory = data.pingHistory.map((datas) => {
           if (datas.success) {
-            pingOnlyHistory.push(datas.ping)
-          }
+            return datas.ping
+          };
         })
         let totalAvgPing = 0;
+        let blackListPing = 0;
         for (let i = 0; i < data.pingHistory.length; i++) {
-          totalAvgPing += pingOnlyHistory[i];
+          if (pingOnlyHistory[i] >= 0) {
+            totalAvgPing += pingOnlyHistory[i];
+          } else {
+            blackListPing++;
+          }
         }
-        data.avgPing = Math.round(totalAvgPing / pingOnlyHistory.length);
+        data.avgPing = Math.round(totalAvgPing / (pingOnlyHistory.length - blackListPing));
       };
       updateDisplay()
       if (res.ping >= 500) {
