@@ -182,16 +182,16 @@ loading(0)
 function nextStep() {
   setTimeout(() => {
     setInterval(() => {
-      data.pingOnlyHistory.fim = data.currentPing;
+      data.pingOnlyHistory.fim = data.avgPing;
     }, 300000)
     setInterval(() => {
-      data.pingOnlyHistory.tem = data.currentPing;
+      data.pingOnlyHistory.tem = data.avgPing;
     }, 600000)
     setInterval(() => {
-      data.pingOnlyHistory.twm = data.currentPing;
+      data.pingOnlyHistory.twm = data.avgPing;
     }, 1200000)
     setInterval(() => {
-      data.pingOnlyHistory.thm = data.currentPing;
+      data.pingOnlyHistory.thm = data.avgPing;
     }, 1800000)
     loadingStatus = "Testing destination..."
     getPing().then((res) => {
