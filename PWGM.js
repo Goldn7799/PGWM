@@ -146,19 +146,91 @@ function updateData() {
     }
   })
 }
-console.log('Starting...')
-updateData()
+let loadingActive = true;
+let loadingStatus = 'Loading Test...';
+let version = '1.2.12'
+function loading(onAnimate) {
+  const loader = ['-', '/', '-', '\\'];
+  console.clear()
+  console.log('----------[ WELCOME ]----------')
+  console.log(`PWGM V${version}`)
+  console.log('')
+  console.log(`Destination : ${config.destination}`)
+  console.log(`Method : ${config.method}`)
+  console.log('')
+  console.log(`Starting [${loader[onAnimate]}] | ${loadingStatus}`);
+  setTimeout(() => {
+    if (onAnimate >= loader.length-1) {
+      if (loadingActive) {
+        loading(0)
+      };
+    } else {
+      if (loadingActive) {
+        loading(onAnimate + 1)
+      };
+    }
+  }, 250);
+}
+loading(0)
+function nextStep() {
+  setTimeout(() => {
+    setInterval(() => {
+      data.pingOnlyHistory.fim = data.currentPing;
+    }, 300000)
+    setInterval(() => {
+      data.pingOnlyHistory.tem = data.currentPing;
+    }, 600000)
+    setInterval(() => {
+      data.pingOnlyHistory.twm = data.currentPing;
+    }, 1200000)
+    setInterval(() => {
+      data.pingOnlyHistory.thm = data.currentPing;
+    }, 1800000)
+    loadingStatus = "Testing destination..."
+    getPing().then((res) => {
+      if (res.success) {
+        loadingStatus = `Destination reached (${res.status})[${res.ping}ms]`
+        setTimeout(() => {
+          loadingActive = false
+          updateData()
+        }, 1600);
+      } else {
+        loadingStatus = `Can't Reach destination`
+        setTimeout(() => {
+          loadingActive = false
+          updateData()
+        }, 1600);
+      }
+    })
+  }, 2000);
+}
+setTimeout(async () => {
+  loadingStatus = "Checking Updates..."
+  const requestU = new Request('https://raw.githubusercontent.com/Goldn7799/PGWM/main/properties.json');
+  const resURaw = await fetch(requestU);
+  const resU = await resURaw.json();
+  const ver = {
+    ser: `${resU.version}`.split('.'),
+    loc: version.split('.')
+  }
+  function checkVersion(id) {
+    if (Number(ver.ser[id]) > Number(ver.loc[id])) {
+      loadingStatus = 'You need to update PWGM to V' + resU.version
+      setTimeout(() => {
+        loadingActive = false;
+      }, 300);
+    } else if (Number(ver.ser[id]) < Number(ver.loc[id])) {
+      loadingStatus = 'You are using unOfficial Version'
+      nextStep()
+    } else if ((id >= ver.ser.length-1) ? false : true) {
+      setTimeout(() => {
+        checkVersion(id + 1)
+      }, 0);
+    } else {
+      loadingStatus = 'You are using Latest Version!'
+      nextStep()
+    }
+  }
+  checkVersion(0)
+}, 500);
 // getPing().then((res) => { console.log(res) }).catch((err) => { console.log(err) })
-
-setInterval(() => {
-  data.pingOnlyHistory.fim = data.currentPing;
-}, 300000)
-setInterval(() => {
-  data.pingOnlyHistory.tem = data.currentPing;
-}, 600000)
-setInterval(() => {
-  data.pingOnlyHistory.twm = data.currentPing;
-}, 1200000)
-setInterval(() => {
-  data.pingOnlyHistory.thm = data.currentPing;
-}, 1800000)
