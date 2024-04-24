@@ -1,6 +1,7 @@
 const config = {
   destination: 'http://api.google.com',
-  method: "GET"
+  method: "GET",
+  fastMode: false
 }
 
 const data = {
@@ -138,18 +139,18 @@ function updateData() {
       if (res.ping >= 500) {
         setTimeout(() => {
           updateData()
-        }, 500);
+        }, (config.fastMode) ? 0 : 500);
       } else {
         setTimeout(() => {
           updateData()
-        }, 800);
+        }, (config.fastMode) ? 0 : 800);
       }
     } else {
       data.packetLoss++;
       updateDisplay()
       setTimeout(() => {
         updateData()
-      }, 900);
+      }, (config.fastMode) ? 0 : 950);
     }
   })
 }
