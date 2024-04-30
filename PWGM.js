@@ -10,6 +10,7 @@ const data = {
   avgPing: '-',
   lowerPing: 0,
   higherPing: 0,
+  totalPacket: 0,
   packetLoss: 0,
   packetAcc: 0,
   start: false,
@@ -29,10 +30,10 @@ function updateDisplay() {
   console.log(`AVG : [ ${data.avgPing}ms ]${(data.pingHistory.length >= ((config.fastMode) ? 100 : 50)) ? '' : ` (${Math.round(data.pingHistory.length / ((config.fastMode) ? 100 : 50) * 100)}%)`}`)
   console.log(`Lower : [ ${data.lowerPing}ms ]`)
   console.log(`Higher : [ ${data.higherPing}ms ]`)
-  const totalPacket = data.packetAcc + data.packetLoss;
-  console.log(`Packet Sent : [ ${totalPacket} ] ( ${(data.usedDataByte / (1 << 20)).toFixed(2)}MB )`)
-  console.log(`Packet Recived : [ ${Math.round(data.packetAcc / totalPacket * 100)}% ]`)
-  console.log(`Packet Loss : [ ${Math.round(data.packetLoss / totalPacket * 100)}% ]`)
+  const totalPacketISO = data.packetAcc + data.packetLoss;
+  console.log(`Packet Sent : [ ${data.totalPacket} ] ( ${(data.usedDataByte / (1 << 20)).toFixed(2)}MB )`)
+  console.log(`Packet Recived : [ ${Math.round(data.packetAcc / totalPacketISO * 100)}% ]`)
+  console.log(`Packet Loss : [ ${Math.round(data.packetLoss / totalPacketISO * 100)}% ]`)
   console.log('')
   console.log(`Ping 5m 10m 20m 30m : [ ${data.pingOnlyHistory.fim}ms | ${data.pingOnlyHistory.tem}ms | ${data.pingOnlyHistory.twm}ms | ${data.pingOnlyHistory.thm}ms ]`)
   console.log('')
@@ -102,6 +103,7 @@ async function getPing() {
 function updateData() {
   getPing().then((res) => {
     data.pingHistory.push(res);
+    data.totalPacket++;
     if (!data.start) {
       data.start = true;
       data.lowerPing = res.ping
@@ -109,9 +111,17 @@ function updateData() {
     if (data.pingHistory.length > ((config.fastMode) ? 100 : 50)) {
       data.pingHistory.splice(0, 1);
     };
+    data.packetAcc = 0;
+    data.packetLoss = 0;
+    data.pingHistory.forEach((pingOnly) => {
+      if (pingOnly.success) {
+        data.packetAcc++;
+      } else {
+        data.packetLoss++;
+      }
+    })
     if (res.success) {
       data.currentPing = res.ping;
-      data.packetAcc++;
       if (data.higherPing <= res.ping) {
         data.higherPing = res.ping;
       };
@@ -146,7 +156,6 @@ function updateData() {
         }, (config.fastMode) ? 0 : 800);
       }
     } else {
-      data.packetLoss++;
       updateDisplay()
       setTimeout(() => {
         updateData()
@@ -156,7 +165,7 @@ function updateData() {
 }
 let loadingActive = true;
 let loadingStatus = 'Loading Test...';
-let version = '1.2.12'
+let version = '1.2.13'
 function loading(onAnimate) {
   const loader = ['-', '/', '-', '\\'];
   console.clear()
